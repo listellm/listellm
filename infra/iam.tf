@@ -1,3 +1,5 @@
+data "aws_caller_identity" "current" {}
+
 # -----------------------------------------------------------------------------
 # OIDC provider — GitHub Actions federation
 # -----------------------------------------------------------------------------
@@ -170,6 +172,43 @@ data "aws_iam_policy_document" "github_actions" {
     actions = ["route53:GetChange"]
 
     resources = ["arn:aws:route53:::change/*"]
+  }
+
+  # IAM actions needed to manage the OIDC provider and this role via Terraform
+  statement {
+    sid    = "IAMSelfManagement"
+    effect = "Allow"
+
+    actions = [
+      "iam:GetOpenIDConnectProvider",
+      "iam:CreateOpenIDConnectProvider",
+      "iam:DeleteOpenIDConnectProvider",
+      "iam:UpdateOpenIDConnectProviderThumbprint",
+      "iam:AddClientIDToOpenIDConnectProvider",
+      "iam:RemoveClientIDFromOpenIDConnectProvider",
+      "iam:TagOpenIDConnectProvider",
+      "iam:UntagOpenIDConnectProvider",
+      "iam:ListOpenIDConnectProviderTags",
+      "iam:GetRole",
+      "iam:CreateRole",
+      "iam:UpdateRole",
+      "iam:DeleteRole",
+      "iam:UpdateAssumeRolePolicy",
+      "iam:TagRole",
+      "iam:UntagRole",
+      "iam:ListRoleTags",
+      "iam:GetRolePolicy",
+      "iam:PutRolePolicy",
+      "iam:DeleteRolePolicy",
+      "iam:ListRolePolicies",
+      "iam:ListAttachedRolePolicies",
+      "iam:ListInstanceProfilesForRole",
+    ]
+
+    resources = [
+      "arn:aws:iam::${data.aws_caller_identity.current.account_id}:oidc-provider/token.actions.githubusercontent.com",
+      "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/listell-github-actions",
+    ]
   }
 }
 
