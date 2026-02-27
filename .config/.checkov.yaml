@@ -4,22 +4,11 @@ framework: terraform
 skip-check:
   - CKV_TF_1 # https://github.com/bridgecrewio/checkov/issues/5286
   - CKV_TF_2
-  # GitHub Actions OIDC role uses AdministratorAccess — intentional for personal project bootstrap
-  - CKV_AWS_274  # AdministratorAccess policy attached
-  - CKV_AWS_1    # IAM full admin privileges
-  - CKV_AWS_110  # IAM privilege escalation (bootstrap role needs it)
-  - CKV_AWS_109  # IAM permissions management
-  - CKV_AWS_358  # OIDC org-specific trust (personal repo, single-owner)
-  - CKV_AWS_108  # IAM data exfiltration
-  - CKV_AWS_49   # IAM wildcard actions (bootstrap role)
-  - CKV_AWS_107  # IAM credentials exposure
-  - CKV_AWS_356  # IAM wildcard resources (bootstrap role)
-  - CKV_AWS_111  # IAM write without constraints (bootstrap role)
-  - CKV_AWS_283  # IAM all principals
-  - CKV_AWS_60   # IAM assume role constraints
-  - CKV_AWS_61   # IAM assume role across services
-  - CKV_AWS_62   # IAM full admin
-  - CKV_AWS_63   # IAM wildcard actions
+  # GitHub Actions OIDC role — scoped to holding-page resources (no AdministratorAccess)
+  - CKV_AWS_358  # OIDC org-specific trust: single-owner personal repo, StringLike wildcard is intentional
+  - CKV_AWS_49   # s3:* action wildcard in S3OriginBucket statement — resource-constrained to the origin bucket
+  - CKV_AWS_111  # s3:* includes writes but resource is constrained to the origin bucket ARN
+  - CKV_AWS_356  # CloudFront and ACM actions require * resource — no resource-level permissions available
   - CKV_AWS_234  # ACM logging (very new check, not yet widely supported)
   - CKV_AWS_216  # CloudFront enabled check (false positive — it is enabled)
   # CloudFront — WAF, logging, geo-restriction, origin failover, strict headers overkill for personal holding page

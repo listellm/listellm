@@ -12,3 +12,6 @@ AVD-AWS-0090
 
 # S3 static website bucket — CMK encryption overkill; AES256 SSE sufficient
 AVD-AWS-0132
+
+# IAM — s3:* action is resource-constrained to the origin bucket ARN, not *
+AVD-AWS-0345

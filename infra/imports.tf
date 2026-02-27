@@ -59,6 +59,22 @@ import {
   id = "Z0437334HZSV61L914JE_www.listell.co.uk_AAAA"
 }
 
+# IAM — GitHub Actions OIDC bootstrap
+import {
+  to = aws_iam_openid_connect_provider.github_actions
+  id = "arn:aws:iam::552644939129:oidc-provider/token.actions.githubusercontent.com"
+}
+
+import {
+  to = aws_iam_role.github_actions
+  id = "listell-github-actions"
+}
+
+import {
+  to = aws_iam_role_policy.github_actions
+  id = "listell-github-actions:listell-holding-page"
+}
+
 # Route 53 — ACM DNS validation CNAMEs
 # for_each key = domain name from domain_validation_options
 import {

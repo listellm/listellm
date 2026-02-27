@@ -34,6 +34,7 @@ jobs:
       - uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: "1.14.0"
+          terraform_wrapper: false
 
       - name: Terraform fmt check
         run: terraform fmt -check -recursive
@@ -86,6 +87,7 @@ jobs:
       - uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: "1.14.0"
+          terraform_wrapper: false
 
       - name: Terraform Init
         run: terraform init
@@ -137,6 +139,7 @@ jobs:
       - uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: "1.14.0"
+          terraform_wrapper: false
 
       - name: Terraform Init
         run: terraform init
