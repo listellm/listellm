@@ -1,0 +1,78 @@
+repos:
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: check-merge-conflict
+      - id: end-of-file-fixer
+      - id: check-added-large-files
+        args:
+          - '--maxkb=2048'
+          - '--enforce-all'
+      - id: check-case-conflict
+      - id: check-json
+      - id: check-yaml
+      - id: detect-aws-credentials
+        args:
+          - '--allow-missing-credentials'
+      - id: detect-private-key
+      - id: trailing-whitespace
+      - id: check-shebang-scripts-are-executable
+
+  - repo: https://github.com/adrienverge/yamllint.git
+    rev: v1.37.1
+    hooks:
+      - id: yamllint
+        args: [-c=./.config/.yamllint.yaml]
+
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.5.0
+    hooks:
+      - id: detect-secrets
+        args: ['--baseline', '.config/.secrets.baseline']
+        exclude: .config/.secrets.baseline
+
+  - repo: https://github.com/antonbabenko/pre-commit-terraform
+    rev: v1.98.1
+    hooks:
+      - id: terraform_fmt
+        files: ^infra/
+        args:
+          - --hook-config=--parallelism-ci-cpu-cores=1
+
+      - id: terraform_validate
+        files: ^infra/
+        args:
+          - --hook-config=--parallelism-ci-cpu-cores=1
+
+      - id: terraform_docs
+        files: ^infra/
+        args:
+          - '--args=--config=__GIT_WORKING_DIR__/.config/.terraform-docs.yml'
+
+      - id: terraform_tflint
+        files: ^infra/
+        args:
+          - --hook-config=--parallelism-ci-cpu-cores=1
+          - --hook-config=--delegate-chdir
+          - '--args=--config=__GIT_WORKING_DIR__/.config/.tflint.hcl'
+
+      - id: terraform_trivy
+        files: ^infra/
+        args:
+          - --hook-config=--parallelism-ci-cpu-cores=1
+          - --args=--skip-dirs="**/.terraform"
+          - '--args=--ignorefile=__GIT_WORKING_DIR__/.config/.trivyignore'
+
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.18.0
+    hooks:
+      - id: gitleaks
+
+  - repo: https://github.com/bridgecrewio/checkov.git
+    rev: 3.2.266
+    hooks:
+      - id: checkov
+        args:
+          - '-d infra'
+          - '--config-file=.config/.checkov.yaml'

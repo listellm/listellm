@@ -1,0 +1,14 @@
+# CloudFront WAF — overkill for a personal holding page
+AVD-AWS-0011
+
+# CloudFront access logging — not required for personal use
+AVD-AWS-0010
+
+# S3 static website bucket — logging not required for personal use
+AVD-AWS-0089
+
+# S3 static website bucket — versioning not appropriate for a static holding page
+AVD-AWS-0090
+
+# S3 static website bucket — CMK encryption overkill; AES256 SSE sufficient
+AVD-AWS-0132

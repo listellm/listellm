@@ -1,0 +1,42 @@
+download-external-modules: false
+external-modules-download-path: .external_modules
+framework: terraform
+skip-check:
+  - CKV_TF_1 # https://github.com/bridgecrewio/checkov/issues/5286
+  - CKV_TF_2
+  # GitHub Actions OIDC role uses AdministratorAccess — intentional for personal project bootstrap
+  - CKV_AWS_274  # AdministratorAccess policy attached
+  - CKV_AWS_1    # IAM full admin privileges
+  - CKV_AWS_110  # IAM privilege escalation (bootstrap role needs it)
+  - CKV_AWS_109  # IAM permissions management
+  - CKV_AWS_358  # OIDC org-specific trust (personal repo, single-owner)
+  - CKV_AWS_108  # IAM data exfiltration
+  - CKV_AWS_49   # IAM wildcard actions (bootstrap role)
+  - CKV_AWS_107  # IAM credentials exposure
+  - CKV_AWS_356  # IAM wildcard resources (bootstrap role)
+  - CKV_AWS_111  # IAM write without constraints (bootstrap role)
+  - CKV_AWS_283  # IAM all principals
+  - CKV_AWS_60   # IAM assume role constraints
+  - CKV_AWS_61   # IAM assume role across services
+  - CKV_AWS_62   # IAM full admin
+  - CKV_AWS_63   # IAM wildcard actions
+  - CKV_AWS_234  # ACM logging (very new check, not yet widely supported)
+  - CKV_AWS_216  # CloudFront enabled check (false positive — it is enabled)
+  # CloudFront — WAF, logging, geo-restriction, origin failover, strict headers overkill for personal holding page
+  - CKV_AWS_68    # CloudFront WAF
+  - CKV2_AWS_47   # CloudFront WAFv2 Log4j AMR (also WAF)
+  - CKV_AWS_86    # CloudFront access logging
+  - CKV_AWS_310   # CloudFront origin failover
+  - CKV_AWS_374   # CloudFront geo restriction
+  - CKV2_AWS_32   # CloudFront strict security headers policy
+  # S3 static website — logging, versioning, replication, KMS, lifecycle, events overkill for a holding page
+  - CKV_AWS_18    # S3 access logging
+  - CKV_AWS_21    # S3 versioning
+  - CKV_AWS_144   # S3 cross-region replication
+  - CKV_AWS_145   # S3 KMS encryption by default
+  - CKV2_AWS_61   # S3 lifecycle policy
+  - CKV2_AWS_62   # S3 event notifications
+  # Route53 — false positive; A records alias CloudFront distributions
+  - CKV2_AWS_23   # Route53 A record attached resource
+  # S3 — false positive in older checkov; SSE configured via aws_s3_bucket_server_side_encryption_configuration
+  - CKV_AWS_19    # S3 encrypted at rest (inline block check; separate resource is present)
