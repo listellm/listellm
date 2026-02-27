@@ -1,0 +1,35 @@
+{
+  "cli_version": "0.4.7",
+  "checkpoint_id": "b4e0ebb3f841",
+  "session_id": "c844f4b8-785f-4fbd-89eb-0d0b62145702",
+  "strategy": "manual-commit",
+  "created_at": "2026-02-27T20:02:24.62435418Z",
+  "branch": "fix/iam-terraform-wrapper-branch-protection",
+  "checkpoints_count": 0,
+  "files_touched": [
+    "infra/imports.tf",
+    ".github/workflows/deploy-infra.yml",
+    ".config/.checkov.yaml",
+    ".config/.trivyignore",
+    ".pre-commit-config.yaml",
+    "infra/iam.tf"
+  ],
+  "agent": "Claude Code",
+  "turn_id": "a12c15493e07",
+  "token_usage": {
+    "input_tokens": 1691,
+    "cache_creation_tokens": 1111788,
+    "cache_read_tokens": 16638804,
+    "output_tokens": 95324,
+    "api_call_count": 171
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-02-27T20:02:23.277377513Z",
+    "agent_lines": 209,
+    "human_added": 14,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 223,
+    "agent_percentage": 93.72197309417041
+  }
+}
