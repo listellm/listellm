@@ -1,0 +1,29 @@
+# Environment
+.env
+.env.*
+
+# Editor/IDE
+.idea/
+*.swp
+*.swo
+*~
+
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+*.tfvars.json
+terraform.tfvars
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Claude
+.claude/
+.playwright-mcp/

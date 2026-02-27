@@ -1,0 +1,145 @@
+name: Deploy Infrastructure
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - infra/**
+  pull_request:
+    branches: [main]
+    paths:
+      - infra/**
+  workflow_dispatch:
+    inputs:
+      targets:
+        description: 'Optional Terraform targets, e.g. "-target=aws_cloudfront_distribution.listell"'
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+  id-token: write
+  pull-requests: write
+
+jobs:
+  lint:
+    name: Terraform Lint
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: infra
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.14.0"
+
+      - name: Terraform fmt check
+        run: terraform fmt -check -recursive
+
+      - uses: terraform-linters/setup-tflint@v6
+        with:
+          tflint_version: v0.61.0
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.tflint.d/plugins
+          key: ${{ runner.os }}-tflint-${{ hashFiles('.config/.tflint.hcl') }}
+
+      - name: tflint init
+        run: tflint --init --config=$GITHUB_WORKSPACE/.config/.tflint.hcl
+
+      - name: tflint
+        run: tflint --recursive --config=$GITHUB_WORKSPACE/.config/.tflint.hcl
+
+      - name: trivy
+        uses: aquasecurity/trivy-action@0.34.1
+        with:
+          scan-type: config
+          scan-ref: infra
+          skip-dirs: "**/.terraform"
+          trivyignores: .config/.trivyignore
+
+      - name: checkov
+        uses: bridgecrewio/checkov-action@v12.1347.0
+        with:
+          directory: infra
+          config_file: .config/.checkov.yaml
+
+  plan:
+    name: Terraform Plan
+    needs: [lint]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    defaults:
+      run:
+        working-directory: infra
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/listell-github-actions
+          aws-region: eu-west-2
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.14.0"
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan -no-color 2>&1 | tee plan-output.txt
+        continue-on-error: true
+
+      - name: Post plan as PR comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const plan = fs.readFileSync('infra/plan-output.txt', 'utf8');
+            const truncated = plan.length > 60000
+              ? plan.substring(0, 60000) + '\n...(truncated)'
+              : plan;
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## Terraform Plan\n\`\`\`\n${truncated}\n\`\`\``
+            });
+
+      - name: Fail if plan failed
+        if: steps.plan.outcome == 'failure'
+        run: exit 1
+
+  apply:
+    name: Terraform Apply
+    needs: [lint]
+    runs-on: ubuntu-latest
+    if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'workflow_dispatch'
+    defaults:
+      run:
+        working-directory: infra
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/listell-github-actions
+          aws-region: eu-west-2
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.14.0"
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve ${{ github.event.inputs.targets }}
